@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark - Dashboard</title>
+    <meta name="description" content="Your personalized skin and hair care dashboard — track analyses, get recommendations, and monitor your journey with Spark.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ─── Dashboard Layout ─── */
+        .dashboard-wrapper {
+            display: flex;
+            min-height: 100vh;
+            background: #0a0a1a;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2.5rem 3rem;
+            margin-left: 260px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* ─── Ambient Background Orbs ─── */
+        .main-content::before,
+        .main-content::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .main-content::before {
+            width: 500px;
+            height: 500px;
+            background: #7c3aed;
+            top: -100px;
+            right: -100px;
+        }
+
+        .main-content::after {
+            width: 400px;
+            height: 400px;
+            background: #06b6d4;
+            bottom: -80px;
+            left: 200px;
+        }
+
+        .main-content > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─── Welcome Header ─── */
+        .welcome-section {
+            margin-bottom: 2.5rem;
+            animation: fadeSlideDown 0.7s ease-out both;
+        }
+
+        .welcome-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.05rem;
+            color: #94a3b8;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* ─── Glass Card Base ─── */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 1.5rem;
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .glass-card-hover:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(124, 58, 237, 0.3);
+            transform: translateY(-4px);
+            box-shadow:
+                0 12px 40px rgba(124, 58, 237, 0.12),
+                0 4px 16px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        /* ─── Stats Row ─── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 16px 16px 0 0;
+            opacity: 0.8;
+        }
+
+        .stat-card:nth-child(1)::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+        .stat-card:nth-child(2)::before { background: linear-gradient(90deg, #06b6d4, #67e8f9); }
+        .stat-card:nth-child(3)::before { background: linear-gradient(90deg, #f59e0b, #fcd34d); }
+        .stat-card:nth-child(4)::before { background: linear-gradient(90deg, #10b981, #6ee7b7); }
+
+        .stat-icon {
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0.25rem 0;
+            line-height: 1;
+        }
+
+        .stat-card:nth-child(1) .stat-value { color: #a78bfa; }
+        .stat-card:nth-child(2) .stat-value { color: #67e8f9; }
+        .stat-card:nth-child(3) .stat-value { color: #fcd34d; }
+        .stat-card:nth-child(4) .stat-value { color: #6ee7b7; }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 500;
+        }
+
+        /* ─── Feature Cards Grid ─── */
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 0 0 1.25rem 0;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, #7c3aed, #06b6d4);
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .feature-card {
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.05), rgba(6, 182, 212, 0.05));
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .feature-card:hover::after {
+            opacity: 1;
+        }
+
+        .feature-card-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-emoji {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            display: block;
+            transition: transform 0.35s ease;
+        }
+
+        .feature-card:hover .feature-emoji {
+            transform: scale(1.15) rotate(-3deg);
+        }
+
+        .feature-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0 0 0.35rem 0;
+            color: #f1f5f9;
+        }
+
+        .feature-desc {
+            font-size: 0.88rem;
+            color: #94a3b8;
+            margin: 0 0 0.75rem 0;
+            line-height: 1.5;
+        }
+
+        .feature-arrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #7c3aed;
+            transition: all 0.3s ease;
+        }
+
+        .feature-arrow svg {
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover .feature-arrow {
+            color: #a78bfa;
+        }
+
+        .feature-card:hover .feature-arrow svg {
+            transform: translateX(4px);
+        }
+
+        /* ─── Recent Analyses ─── */
+        .recent-analyses {
+            margin-bottom: 2rem;
+        }
+
+        .analyses-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .analysis-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .analysis-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(124, 58, 237, 0.2);
+        }
+
+        .analysis-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .analysis-icon.skin {
+            background: rgba(124, 58, 237, 0.15);
+        }
+
+        .analysis-icon.hair {
+            background: rgba(6, 182, 212, 0.15);
+        }
+
+        .analysis-info {
+            flex: 1;
+        }
+
+        .analysis-type {
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: #e2e8f0;
+            margin: 0 0 0.15rem 0;
+        }
+
+        .analysis-date {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .analysis-badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .analysis-badge.completed {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* ─── Shimmer Loader ─── */
+        .shimmer {
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.04) 25%,
+                rgba(255, 255, 255, 0.08) 50%,
+                rgba(255, 255, 255, 0.04) 75%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.8s ease-in-out infinite;
+            border-radius: 6px;
+            min-height: 1.5em;
+        }
+
+        /* ─── Animations ─── */
+        @keyframes fadeSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+            50% { box-shadow: 0 0 20px 2px rgba(124, 58, 237, 0.08); }
+        }
+
+        .card-animate {
+            opacity: 0;
+            transform: translateY(24px);
+            animation: fadeSlideUp 0.6s ease-out forwards;
+        }
+
+        .card-animate:nth-child(1) { animation-delay: 0.08s; }
+        .card-animate:nth-child(2) { animation-delay: 0.16s; }
+        .card-animate:nth-child(3) { animation-delay: 0.24s; }
+        .card-animate:nth-child(4) { animation-delay: 0.32s; }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 0;
+                padding: 2rem 1.5rem;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .main-content {
+                padding: 1.5rem 1rem;
+            }
+
+            .welcome-title {
+                font-size: 1.7rem;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+            }
+
+            .stat-value {
+                font-size: 1.35rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside id="sidebar"></aside>
+
+        <main class="main-content" id="main-content">
+            <!-- Welcome Header -->
+            <section class="welcome-section">
+                <h1 class="welcome-title">
+                    Welcome back, <span id="user-name" class="gradient-text">User</span>! ✨
+                </h1>
+                <p class="welcome-subtitle">Your personalized skin &amp; hair care journey</p>
+            </section>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="glass-card stat-card card-animate">
+                    <span class="stat-icon">📊</span>
+                    <div id="total-scans" class="stat-value shimmer">&nbsp;</div>
+                    <span class="stat-label">Total Scans</span>
+                </div>
+                <div class="glass-card stat-card card-animate">
+                    <span class="stat-icon">🧴</span>
+                    <div id="skin-type" class="stat-value shimmer">&nbsp;</div>
+                    <span class="stat-label">Skin Type</span>
+                </div>
+                <div class="glass-card stat-card card-animate">
+                    <span class="stat-icon">💇</span>
+                    <div id="hair-type" class="stat-value shimmer">&nbsp;</div>
+                    <span class="stat-label">Hair Type</span>
+                </div>
+                <div class="glass-card stat-card card-animate">
+                    <span class="stat-icon">⭐</span>
+                    <div id="user-rating" class="stat-value shimmer">&nbsp;</div>
+                    <span class="stat-label">Your Rating</span>
+                </div>
+            </div>
+
+            <!-- Feature Cards -->
+            <h2 class="section-title">Quick Actions</h2>
+            <div class="feature-grid">
+                <a href="face-scan.html" class="feature-card glass-card glass-card-hover card-animate" id="feature-face-scan">
+                    <div class="feature-card-inner">
+                        <span class="feature-emoji">📸</span>
+                        <h3 class="feature-title">Face Scan</h3>
+                        <p class="feature-desc">Analyze your skin and get product recommendations</p>
+                        <span class="feature-arrow">
+                            Start Scan
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+                <a href="hair-scan.html" class="feature-card glass-card glass-card-hover card-animate" id="feature-hair-analysis">
+                    <div class="feature-card-inner">
+                        <span class="feature-emoji">💇</span>
+                        <h3 class="feature-title">Hair Analysis</h3>
+                        <p class="feature-desc">Check hair health and get growth plans</p>
+                        <span class="feature-arrow">
+                            Analyze Now
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+                <a href="recommendations.html" class="feature-card glass-card glass-card-hover card-animate" id="feature-recommendations">
+                    <div class="feature-card-inner">
+                        <span class="feature-emoji">📋</span>
+                        <h3 class="feature-title">My Recommendations</h3>
+                        <p class="feature-desc">View your personalized care plan</p>
+                        <span class="feature-arrow">
+                            View Plan
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+                <a href="rating.html" class="feature-card glass-card glass-card-hover card-animate" id="feature-rate-spark">
+                    <div class="feature-card-inner">
+                        <span class="feature-emoji">⭐</span>
+                        <h3 class="feature-title">Rate Spark</h3>
+                        <p class="feature-desc">Help us improve with your feedback</p>
+                        <span class="feature-arrow">
+                            Leave Review
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Recent Analyses -->
+            <section class="recent-analyses">
+                <h2 class="section-title">Recent Analyses</h2>
+                <div id="recent-analyses" class="analyses-list">
+                    <!-- Shimmer placeholders while loading -->
+                    <div class="analysis-item">
+                        <div class="shimmer" style="width:42px;height:42px;border-radius:12px;flex-shrink:0;"></div>
+                        <div style="flex:1;">
+                            <div class="shimmer" style="width:60%;height:14px;margin-bottom:6px;"></div>
+                            <div class="shimmer" style="width:35%;height:11px;"></div>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="shimmer" style="width:42px;height:42px;border-radius:12px;flex-shrink:0;"></div>
+                        <div style="flex:1;">
+                            <div class="shimmer" style="width:55%;height:14px;margin-bottom:6px;"></div>
+                            <div class="shimmer" style="width:30%;height:11px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

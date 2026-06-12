@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spark — AI-Powered Skin & Hair Care Advisor</title>
+  <meta name="description" content="Spark uses advanced AI face & hair scanning to provide custom budget-friendly skin recommendations, hair growth plans, diet routines, and wellness guides.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Custom landing page specific styles */
+    .landing-body {
+      background-color: var(--bg-primary);
+      overflow-y: auto;
+    }
+
+    .hero-section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding-top: 80px;
+      padding-bottom: 4rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 3rem;
+      align-items: center;
+      width: 100%;
+    }
+
+    @media (max-width: 992px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero-actions {
+        justify-content: center;
+      }
+    }
+
+    .hero-title {
+      font-size: 3.8rem;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 576px) {
+      .hero-title {
+        font-size: 2.8rem;
+      }
+    }
+
+    .hero-description {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      margin-bottom: 2.5rem;
+      max-width: 620px;
+    }
+
+    @media (max-width: 992px) {
+      .hero-description {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .visual-globe {
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(6, 182, 212, 0.4));
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 80px rgba(124, 58, 237, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8rem;
+      animation: floatGlobe 6s ease-in-out infinite;
+      position: relative;
+    }
+
+    .visual-globe::before {
+      content: '✨';
+      position: absolute;
+      top: 10%;
+      right: 15%;
+      font-size: 2.5rem;
+      animation: rotateSparkle 4s linear infinite;
+    }
+
+    @keyframes floatGlobe {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(3deg); }
+    }
+
+    @keyframes rotateSparkle {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Features Section */
+    .section-padding {
+      padding: 6rem 0;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 650px;
+      margin: 0 auto 4rem auto;
+    }
+
+    .section-header h2 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .step-card {
+      text-align: center;
+      position: relative;
+    }
+
+    .step-number {
+      width: 50px;
+      height: 50px;
+      background: var(--purple-primary);
+      color: #fff;
+      font-family: var(--font-outfit);
+      font-weight: 800;
+      font-size: 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem auto;
+      box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+    }
+
+    /* Testimonials */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .testimonial-card {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .testimonial-user {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: auto;
+    }
+
+    .avatar {
+      width: 45px;
+      height: 45px;
+      background: var(--purple-primary);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rating-stars {
+      color: var(--gold);
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border-glass);
+      padding: 3rem 0;
+      text-align: center;
+      background: var(--bg-secondary);
+    }
+
+    .footer-brand {
+      font-family: var(--font-outfit);
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-link {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+
+    .footer-link:hover {
+      color: #fff;
+    }
+
+    .copyright {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Scroll Animations classes */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body class="landing-body">
+
+  <!-- Glow Orbs -->
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-brand"><span class="gradient-text">Spark ✨</span></div>
+    <div class="nav-links">
+      <a href="login.html" class="btn btn-sm btn-secondary" id="nav-login-btn">Login</a>
+      <a href="register.html" class="btn btn-sm btn-primary" id="nav-register-btn">Get Started</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content animate-slide-up">
+          <h1 class="hero-title">Unlock Your <br><span class="gradient-text">Natural Glow</span></h1>
+          <p class="hero-description">
+            Experience our advanced AI-powered face and hair advisor. Instantly scan your profile to receive dermatologist-aligned, budget-friendly product advice, customized wellness plans, diet routines, and hair growth schedules.
+          </p>
+          <div class="hero-actions">
+            <a href="register.html" class="btn btn-lg btn-primary" id="hero-cta-btn">Start Your Scan ✨</a>
+            <a href="#features" class="btn btn-lg btn-outline" id="hero-secondary-btn">How it Works</a>
+          </div>
+        </div>
+        <div class="hero-visual animate-fade-in">
+          <div class="visual-globe">👩</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="section-padding reveal">
+    <div class="container">
+      <div class="section-header">
+        <h2>Complete Skin &amp; Hair Ecosystem</h2>
+        <p>Built with leading-edge client-side computer vision models to evaluate health indexes locally and securely.</p>
+      </div>
+
+      <div class="cards-grid">
+        <div class="glass-card glass-card-hover feature-card">
+          <span class="icon">📸</span>
+          <h3>Face Analysis</h3>
+          <p>Scans facial texture and age parameters to automatically gauge skin profiles. Recommends perfect-match skin care.</p>
+        </div>
+
+        <div class="glass-card glass-card-hover feature-card">
+          <span class="icon">💇</span>
+          <h3>Hair Diagnostics</h3>
+          <p>Identifies hair density patterns and concerns (like dandruff, thinning or split ends) to create recovery and growth programs.</p>
+        </div>
+
+        <div class="glass-card glass-card-hover feature-card">
+          <span class="icon">💧</span>
+          <h3>Hydration Advisor</h3>
+          <p>Generates tailored fluid requirements dynamically matched to user age parameters to optimize metabolic moisture.</p>
+        </div>
+
+        <div class="glass-card glass-card-hover feature-card">
+          <span class="icon">🛒</span>
+          <h3>Smart Market Analyzer</h3>
+          <p>Scans beauty markets for budget-friendly alternatives, ensuring you get glowing results without high costs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="section-padding reveal" style="background: rgba(255, 255, 255, 0.01);">
+    <div class="container">
+      <div class="section-header">
+        <h2>Your Path to Glow in 3 Steps</h2>
+        <p>A completely personalized routine crafted in seconds.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="glass-card step-card">
+          <div class="step-number">1</div>
+          <h3>Create Profile</h3>
+          <p>Sign up securely by introducing basic age details to initialize the advisors.</p>
+        </div>
+
+        <div class="glass-card step-card">
+          <div class="step-number">2</div>
+          <h3>Scan Face &amp; Hair</h3>
+          <p>Grant camera access to run the local AI models directly in your browser tab.</p>
+        </div>
+
+        <div class="glass-card step-card">
+          <div class="step-number">3</div>
+          <h3>Get Custom Plan</h3>
+          <p>Access diet logs, sleeping structures, water tallies, and product suggestions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="section-padding reveal">
+    <div class="container">
+      <div class="section-header">
+        <h2>Loved By Thousands</h2>
+        <p>See what our users are saying about their Spark transformations.</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="glass-card testimonial-card">
+          <div class="rating-stars">★★★★★</div>
+          <p>"Spark's analysis correctly suggested products that fixed my dry patches! The budget options saved me thousands."</p>
+          <div class="testimonial-user">
+            <div class="avatar" style="background: #7c3aed;">P</div>
+            <div>
+              <h4>Preethi</h4>
+              <p style="font-size: 0.8rem;">Verified Glow User</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card testimonial-card">
+          <div class="rating-stars">★★★★★</div>
+          <p>"The sleep routine combined with the custom hair oil plan decreased my hair fall significantly in just 3 weeks!"</p>
+          <div class="testimonial-user">
+            <div class="avatar" style="background: #06b6d4;">R</div>
+            <div>
+              <h4>Rudra</h4>
+              <p style="font-size: 0.8rem;">Verified Hair Plan User</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card testimonial-card">
+          <div class="rating-stars">★★★★★</div>
+          <p>"I love the water intake calculator. It tracks my goals perfectly based on my age range. A fantastic wellness utility."</p>
+          <div class="testimonial-user">
+            <div class="avatar" style="background: #f59e0b;">A</div>
+            <div>
+              <h4>Amit</h4>
+              <p style="font-size: 0.8rem;">Verified Lifestyle User</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-brand"><span class="gradient-text">Spark ✨</span></div>
+      <div class="footer-links">
+        <a href="login.html" class="footer-link">Login</a>
+        <a href="register.html" class="footer-link">Register</a>
+        <a href="#features" class="footer-link">Features</a>
+      </div>
+      <div class="copyright">
+        &copy; 2026 Spark. All rights reserved. Built with advanced browser AI technology.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Handle scroll animation reveal
+    function revealOnScroll() {
+      const reveals = document.querySelectorAll('.reveal');
+      const windowHeight = window.innerHeight;
+
+      reveals.forEach(reveal => {
+        const revealTop = reveal.getBoundingClientRect().top;
+        const revealPoint = 100;
+
+        if (revealTop < windowHeight - revealPoint) {
+          reveal.classList.add('active');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', () => {
+      revealOnScroll();
+      // If already logged in, redirect user to dashboard on landing page click
+      if (isLoggedIn()) {
+        const heroCta = document.getElementById('hero-cta-btn');
+        if (heroCta) {
+          heroCta.textContent = 'Go to Dashboard 📊';
+          heroCta.href = 'dashboard.html';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

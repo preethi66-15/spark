@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark - Recommendations</title>
+    <meta name="description" content="Your complete personalized care plan — skin care, hair care, diet, hydration, and sleep recommendations powered by Spark AI.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ── Page-specific tokens ── */
+        :root {
+            --bg-deep: #0a0a1a;
+            --purple: #7c3aed;
+            --purple-soft: rgba(124, 58, 237, .15);
+            --cyan: #06b6d4;
+            --gold: #f59e0b;
+            --green: #10b981;
+            --glass-bg: rgba(255, 255, 255, .04);
+            --glass-border: rgba(255, 255, 255, .08);
+            --glass-hover: rgba(255, 255, 255, .07);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        /* ── Layout ── */
+        body {
+            margin: 0;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 40px 48px 80px;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        @media (max-width: 860px) {
+            .main-content { margin-left: 0; padding: 24px 16px 80px; }
+        }
+
+        /* ── Header ── */
+        .rec-header {
+            margin-bottom: 36px;
+            animation: fadeSlideDown .5s ease both;
+        }
+
+        .rec-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 2.25rem;
+            margin: 0 0 6px;
+            background: linear-gradient(135deg, var(--purple), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .rec-header .subtitle {
+            color: var(--text-secondary);
+            font-size: .95rem;
+            margin: 0;
+        }
+
+        /* ── Tab bar ── */
+        .tab-bar {
+            display: flex;
+            gap: 6px;
+            padding: 6px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            margin-bottom: 32px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            animation: fadeSlideDown .55s ease both;
+        }
+
+        .tab-bar::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            flex: 1 1 0;
+            min-width: 120px;
+            padding: 12px 18px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: .88rem;
+            cursor: pointer;
+            transition: all .25s ease;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--glass-hover);
+        }
+
+        .tab-btn.active {
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, .35);
+        }
+
+        .tab-btn .tab-icon {
+            margin-right: 6px;
+            font-size: 1rem;
+        }
+
+        /* ── Tab content ── */
+        #tab-content {
+            position: relative;
+            min-height: 320px;
+        }
+
+        .tab-pane {
+            animation: fadeIn .35s ease both;
+        }
+
+        /* ── Cards (product / diet / generic) ── */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, .35);
+            border-color: rgba(124, 58, 237, .25);
+        }
+
+        .card-label {
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--cyan);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .card-desc {
+            font-size: .85rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+
+        .badge-purple { background: var(--purple-soft); color: var(--purple); }
+        .badge-green  { background: rgba(16,185,129,.12); color: var(--green); }
+        .badge-gold   { background: rgba(245,158,11,.12); color: var(--gold); }
+        .badge-cyan   { background: rgba(6,182,212,.12); color: var(--cyan); }
+
+        .star-rating {
+            color: var(--gold);
+            font-size: .85rem;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .price-tag {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--green);
+        }
+
+        /* ── Section headings inside tabs ── */
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin: 0 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .icon {
+            font-size: 1.3rem;
+        }
+
+        .summary-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .summary-chip {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 10px 18px;
+            font-size: .85rem;
+            color: var(--text-primary);
+            backdrop-filter: blur(10px);
+        }
+
+        .summary-chip strong {
+            color: var(--cyan);
+            margin-right: 4px;
+        }
+
+        /* ── Water glasses ── */
+        .water-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .water-glass {
+            width: 52px;
+            height: 68px;
+            border-radius: 0 0 12px 12px;
+            border: 2px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: transform .2s ease, border-color .2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .water-glass.filled {
+            border-color: var(--cyan);
+            background: rgba(6, 182, 212, .08);
+            animation: popIn .35s ease both;
+        }
+
+        .water-glass.filled::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 0 0 10px 10px;
+            background: linear-gradient(180deg, rgba(6,182,212,.15), rgba(6,182,212,.05));
+        }
+
+        .water-glass:hover {
+            transform: scale(1.08);
+            border-color: var(--cyan);
+        }
+
+        .water-progress-bar {
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.06);
+            margin-top: 16px;
+            overflow: hidden;
+        }
+
+        .water-progress-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--cyan), var(--purple));
+            transition: width .6s ease;
+        }
+
+        .water-stat {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 12px 0 4px;
+        }
+
+        /* ── Sleep timeline ── */
+        .sleep-timeline {
+            position: relative;
+            padding-left: 40px;
+            margin: 20px 0;
+        }
+
+        .sleep-timeline::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--purple), var(--cyan), var(--green));
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+            animation: fadeSlideRight .4s ease both;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--purple);
+            box-shadow: 0 0 12px rgba(124,58,237,.5);
+        }
+
+        .timeline-item .time {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: var(--cyan);
+            font-size: .9rem;
+            margin-bottom: 4px;
+        }
+
+        .timeline-item .activity {
+            color: var(--text-primary);
+            font-size: .9rem;
+        }
+
+        .timeline-item .tip {
+            color: var(--text-secondary);
+            font-size: .8rem;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .sleep-tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .sleep-tip-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            transition: transform .2s ease;
+        }
+
+        .sleep-tip-card:hover { transform: translateY(-2px); }
+
+        .sleep-tip-card .tip-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .sleep-tip-card .tip-text {
+            font-size: .85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .sleep-tip-card .tip-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            font-size: .9rem;
+        }
+
+        /* ── Diet card extras ── */
+        .diet-card .emoji {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .diet-card .meal-time {
+            margin-top: 10px;
+        }
+
+        /* ── Empty state ── */
+        #empty-state {
+            display: none;
+            text-align: center;
+            padding: 80px 20px;
+            animation: fadeIn .5s ease both;
+        }
+
+        #empty-state .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 18px;
+            display: block;
+            animation: floatBounce 3s ease-in-out infinite;
+        }
+
+        #empty-state h2 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            margin: 0 0 8px;
+        }
+
+        #empty-state p {
+            color: var(--text-secondary);
+            font-size: .92rem;
+            margin: 0 0 28px;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .empty-links {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .empty-link {
+            padding: 12px 28px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: .88rem;
+            text-decoration: none;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .empty-link:hover {
+            transform: translateY(-2px);
+        }
+
+        .empty-link.primary {
+            background: linear-gradient(135deg, var(--purple), #9333ea);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, .3);
+        }
+
+        .empty-link.primary:hover {
+            box-shadow: 0 6px 28px rgba(124, 58, 237, .45);
+        }
+
+        .empty-link.secondary {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+        }
+
+        .empty-link.secondary:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 4px 16px rgba(6, 182, 212, .15);
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeSlideRight {
+            from { opacity: 0; transform: translateX(-12px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        @keyframes popIn {
+            0%   { transform: scale(.7); opacity: 0; }
+            70%  { transform: scale(1.08); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes floatBounce {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-12px); }
+        }
+
+        /* ── Stagger children ── */
+        .card-grid .glass-card:nth-child(1)  { animation-delay: .05s; }
+        .card-grid .glass-card:nth-child(2)  { animation-delay: .1s;  }
+        .card-grid .glass-card:nth-child(3)  { animation-delay: .15s; }
+        .card-grid .glass-card:nth-child(4)  { animation-delay: .2s;  }
+        .card-grid .glass-card:nth-child(5)  { animation-delay: .25s; }
+        .card-grid .glass-card:nth-child(6)  { animation-delay: .3s;  }
+
+        .sleep-timeline .timeline-item:nth-child(1) { animation-delay: .05s; }
+        .sleep-timeline .timeline-item:nth-child(2) { animation-delay: .12s; }
+        .sleep-timeline .timeline-item:nth-child(3) { animation-delay: .19s; }
+        .sleep-timeline .timeline-item:nth-child(4) { animation-delay: .26s; }
+        .sleep-timeline .timeline-item:nth-child(5) { animation-delay: .33s; }
+
+        .water-glass:nth-child(1)  { animation-delay: .02s; }
+        .water-glass:nth-child(2)  { animation-delay: .05s; }
+        .water-glass:nth-child(3)  { animation-delay: .08s; }
+        .water-glass:nth-child(4)  { animation-delay: .11s; }
+        .water-glass:nth-child(5)  { animation-delay: .14s; }
+        .water-glass:nth-child(6)  { animation-delay: .17s; }
+        .water-glass:nth-child(7)  { animation-delay: .20s; }
+        .water-glass:nth-child(8)  { animation-delay: .23s; }
+        .water-glass:nth-child(9)  { animation-delay: .26s; }
+        .water-glass:nth-child(10) { animation-delay: .29s; }
+        .water-glass:nth-child(11) { animation-delay: .32s; }
+        .water-glass:nth-child(12) { animation-delay: .35s; }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside id="sidebar"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+        <!-- Page Header -->
+        <header class="rec-header">
+            <h1>📋 My Recommendations</h1>
+            <p class="subtitle">Your complete personalized care plan</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-bar" id="tab-bar" role="tablist" aria-label="Recommendation categories">
+            <button class="tab-btn active" data-tab="skin" role="tab" aria-selected="true" aria-controls="tab-content">
+                <span class="tab-icon">✨</span>Skin Care
+            </button>
+            <button class="tab-btn" data-tab="hair" role="tab" aria-selected="false" aria-controls="tab-content">
+                <span class="tab-icon">💇</span>Hair Care
+            </button>
+            <button class="tab-btn" data-tab="diet" role="tab" aria-selected="false" aria-controls="tab-content">
+                <span class="tab-icon">🥗</span>Diet Plan
+            </button>
+            <button class="tab-btn" data-tab="water" role="tab" aria-selected="false" aria-controls="tab-content">
+                <span class="tab-icon">💧</span>Water Intake
+            </button>
+            <button class="tab-btn" data-tab="sleep" role="tab" aria-selected="false" aria-controls="tab-content">
+                <span class="tab-icon">😴</span>Sleep
+            </button>
+        </nav>
+
+        <!-- Tab Content Area -->
+        <div id="tab-content" role="tabpanel"></div>
+
+        <!-- Empty State (shown when no analyses) -->
+        <section id="empty-state">
+            <span class="empty-icon">🔍</span>
+            <h2>No analyses yet!</h2>
+            <p>Start with a Face Scan or Hair Analysis to receive personalized care recommendations tailored just for you.</p>
+            <div class="empty-links">
+                <a href="face-scan.html" class="empty-link primary">✨ Face Scan</a>
+                <a href="hair-scan.html" class="empty-link secondary">💇 Hair Analysis</a>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script src="js/recommendations.js"></script>
+</body>
+</html>

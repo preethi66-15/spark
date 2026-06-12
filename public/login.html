@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spark — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-wrapper input {
+      padding-right: 2.75rem;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+    }
+    .password-toggle:hover {
+      color: var(--text-primary);
+    }
+    .remember-forgot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .checkbox-container input {
+      accent-color: var(--purple-primary);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .forgot-link {
+      color: var(--purple-light);
+      font-weight: 500;
+    }
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="auth-page">
+
+  <!-- Glow Orbs -->
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+
+  <div class="glass-card auth-card animate-slide-up">
+    <div class="auth-header">
+      <div class="auth-logo"><span class="gradient-text">Spark ✨</span></div>
+      <h2 class="auth-title">Welcome Back</h2>
+      <p class="auth-subtitle">Sign in to continue your glow journey</p>
+    </div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email" class="form-label">Email Address</label>
+        <div style="position: relative;">
+          <input type="email" id="email" class="form-input" placeholder="e.g., name@domain.com" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+          <button type="button" id="password-toggle" class="password-toggle" title="Toggle password visibility">👁️</button>
+        </div>
+      </div>
+
+      <div class="remember-forgot">
+        <label class="checkbox-container">
+          <input type="checkbox" id="remember-me">
+          <span>Remember me</span>
+        </label>
+        <a href="forgot-password.html" class="forgot-link" id="forgot-password-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full" id="login-submit-btn">
+        <span>🔑</span> Login to Advisor
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="register.html" id="register-redirect-link">Register Here</a>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

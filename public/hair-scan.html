@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spark — Hair Analysis &amp; Growth Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .hair-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .hair-header h1 {
+      font-size: 2.4rem;
+      background: linear-gradient(135deg, #a78bfa, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hair-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+    @media (max-width: 900px) {
+      .hair-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+    .webcam-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+    }
+    .hair-selector-card {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .selector-title {
+      font-family: var(--font-outfit);
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    .radio-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+    .selector-label {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-glass);
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .selector-label:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(124, 58, 237, 0.3);
+    }
+    .selector-label input {
+      accent-color: var(--purple-primary);
+    }
+    .selector-label.selected {
+      background: rgba(124, 58, 237, 0.1);
+      border-color: var(--purple-primary);
+      color: #fff;
+    }
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+    .results-section {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 0.85rem 1.25rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 0.75rem;
+      border: 1px solid var(--border-glass);
+    }
+    .schedule-time {
+      font-family: var(--font-outfit);
+      font-weight: 700;
+      color: var(--cyan);
+      min-width: 80px;
+    }
+    .schedule-activity {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .tips-list {
+      margin-top: 1rem;
+      padding-left: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .tips-list li {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside id="sidebar"></aside>
+
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+    <div class="hair-header">
+      <h1 class="gradient-text">💇 Hair Analysis &amp; Growth Plan</h1>
+      <p class="subtitle" style="color: var(--text-secondary);">Analyze your hair texture, specify concerns, and generate a customized hair-growth plan</p>
+    </div>
+
+    <!-- Scan & Select layout -->
+    <div class="hair-layout">
+      <!-- Left: Webcam Verification -->
+      <div class="webcam-section">
+        <div class="webcam-container" id="webcam-container">
+          <div class="webcam-placeholder" id="webcam-placeholder">
+            <span style="font-size: 3rem; animation: pulse 2.5s infinite;">📷</span>
+            <span style="color: var(--text-muted);">Camera preview will appear here</span>
+          </div>
+          <video id="webcam" autoplay playsinline muted></video>
+          <canvas id="overlay"></canvas>
+        </div>
+
+        <div class="flex gap-2">
+          <button class="btn btn-primary" id="start-scan">🎥 Start Camera</button>
+          <button class="btn btn-secondary" id="capture-btn" style="display: none;">📸 Capture</button>
+        </div>
+        <p id="scan-status" style="font-size: 0.85rem; color: var(--text-secondary); min-height: 1.2rem;"></p>
+      </div>
+
+      <!-- Right: Selectors -->
+      <div class="glass-card hair-selector-card">
+        <div>
+          <h3 class="selector-title">1. Select Hair Type</h3>
+          <div class="radio-grid" id="hair-type-select">
+            <label class="selector-label">
+              <input type="radio" name="hair-type" value="Straight">
+              <span>Straight</span>
+            </label>
+            <label class="selector-label">
+              <input type="radio" name="hair-type" value="Wavy">
+              <span>Wavy</span>
+            </label>
+            <label class="selector-label">
+              <input type="radio" name="hair-type" value="Curly">
+              <span>Curly</span>
+            </label>
+            <label class="selector-label">
+              <input type="radio" name="hair-type" value="Coily">
+              <span>Coily</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="selector-title">2. Select Hair Concerns</h3>
+          <div class="checkbox-grid" id="hair-concerns">
+            <label class="selector-label">
+              <input type="checkbox" value="Hair Fall">
+              <span>Hair Fall</span>
+            </label>
+            <label class="selector-label">
+              <input type="checkbox" value="Dandruff">
+              <span>Dandruff</span>
+            </label>
+            <label class="selector-label">
+              <input type="checkbox" value="Dry Hair">
+              <span>Dry Hair</span>
+            </label>
+            <label class="selector-label">
+              <input type="checkbox" value="Oily Scalp">
+              <span>Oily Scalp</span>
+            </label>
+            <label class="selector-label">
+              <input type="checkbox" value="Thinning">
+              <span>Thinning</span>
+            </label>
+            <label class="selector-label">
+              <input type="checkbox" value="Split Ends">
+              <span>Split Ends</span>
+            </label>
+          </div>
+        </div>
+
+        <button class="btn btn-gold w-full" id="analyze-btn" disabled>
+          <span>🧬</span> Analyze &amp; Get Plan
+        </button>
+      </div>
+    </div>
+
+    <!-- Hidden Results sections -->
+    <div class="results-section hidden" id="results-section">
+      <div class="glass-card" id="hair-results">
+        <h2 class="gradient-text">🧬 Diagnostics Report</h2>
+        <div style="display: flex; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">
+          <div class="glass-card" style="flex: 1; padding: 1.2rem; min-width: 200px;">
+            <div class="stat-label">Verified Structure</div>
+            <div class="stat-value text-purple" id="result-hair-type" style="font-size: 1.8rem;">—</div>
+          </div>
+          <div class="glass-card" style="flex: 1; padding: 1.2rem; min-width: 200px;">
+            <div class="stat-label">Core Diagnostics</div>
+            <div class="stat-value text-cyan" id="result-hair-concerns" style="font-size: 1.8rem;">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hair care products -->
+      <div id="hair-products">
+        <h2 class="gradient-text mb-2">💄 Budget-Friendly Hair Products</h2>
+        <div class="cards-grid" id="products-grid"></div>
+      </div>
+
+      <!-- Growth Diet -->
+      <div id="hair-diet">
+        <h2 class="gradient-text mb-2">🥗 Nutrition for Hair Growth</h2>
+        <div class="cards-grid" id="diet-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));"></div>
+      </div>
+
+      <!-- Sleep schedule -->
+      <div class="glass-card" id="sleep-schedule">
+        <h2 class="gradient-text">😴 Optimal Sleep Schedule</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;" id="sleep-title">Optimal Sleep Schedule for Hair Growth</p>
+        <div class="schedule-grid" id="sleep-grid"></div>
+        <h3 class="mt-3 mb-1" style="font-size: 1.1rem; color: #fff;">💡 Routine Guidelines</h3>
+        <ul class="tips-list" id="sleep-tips"></ul>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="hidden">
+    <div class="spinner" style="width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--purple-primary); border-radius: 50%; animation: spinner 0.8s linear infinite;"></div>
+    <p class="loading-text" id="loading-text" style="color: var(--text-secondary); font-size: 0.95rem;">Checking models...</p>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.min.js"></script>
+  <script src="js/hair-scan.js"></script>
+</body>
+</html>

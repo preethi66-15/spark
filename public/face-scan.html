@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark - Face Scan</title>
+    <meta name="description" content="AI-powered face scan and skin analysis — get personalized skincare recommendations, diet plans, and hydration goals.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ── Face Scan Page Styles ── */
+
+        .face-scan-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .face-scan-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #7c3aed, #06b6d4, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            animation: gradientShift 4s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .face-scan-header .subtitle {
+            color: rgba(255,255,255,0.55);
+            font-size: 1.05rem;
+            font-weight: 400;
+        }
+
+        /* ── Two-Column Layout ── */
+
+        .scan-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .scan-layout { grid-template-columns: 1fr; }
+        }
+
+        /* ── Webcam Area ── */
+
+        .webcam-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .webcam-container {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            aspect-ratio: 4/3;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            background: rgba(255,255,255,0.03);
+            border: 1.5px solid rgba(124,58,237,0.25);
+            box-shadow: 0 0 40px rgba(124,58,237,0.10);
+        }
+
+        .webcam-container video,
+        .webcam-container canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .webcam-container canvas {
+            pointer-events: none;
+        }
+
+        .webcam-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.95rem;
+        }
+
+        .webcam-placeholder .camera-icon {
+            font-size: 3rem;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.08); }
+        }
+
+        /* ── Buttons ── */
+
+        .scan-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-scan {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-scan::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-scan:hover::after { opacity: 1; }
+
+        .btn-scan-primary {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+        }
+
+        .btn-scan-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(124,58,237,0.45);
+        }
+
+        .btn-scan-secondary {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(6,182,212,0.35);
+        }
+
+        .btn-scan-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(6,182,212,0.45);
+        }
+
+        .btn-scan:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        #scan-status {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            text-align: center;
+            min-height: 1.4rem;
+            transition: color 0.3s;
+        }
+
+        #scan-status.active { color: #10b981; }
+        #scan-status.error  { color: #ef4444; }
+
+        /* ── Glass Card ── */
+
+        .glass-card {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 1.2rem;
+            padding: 1.8rem;
+            transition: transform 0.35s, box-shadow 0.35s;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+        }
+
+        .glass-card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 1.2rem;
+            color: #fff;
+        }
+
+        /* ── Results Panel ── */
+
+        #results-panel {
+            animation: slideInRight 0.6s ease;
+        }
+
+        #results-panel.hidden { display: none; }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(40px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .result-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .result-row:last-child { border-bottom: none; }
+
+        .result-label {
+            color: rgba(255,255,255,0.55);
+            font-size: 0.92rem;
+        }
+
+        .result-value {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.9rem;
+            border-radius: 2rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .badge-purple {
+            background: rgba(124,58,237,0.2);
+            color: #a78bfa;
+            border: 1px solid rgba(124,58,237,0.35);
+        }
+
+        .badge-cyan {
+            background: rgba(6,182,212,0.15);
+            color: #22d3ee;
+            border: 1px solid rgba(6,182,212,0.3);
+        }
+
+        .badge-gold {
+            background: rgba(245,158,11,0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245,158,11,0.3);
+        }
+
+        .badge-green {
+            background: rgba(16,185,129,0.15);
+            color: #34d399;
+            border: 1px solid rgba(16,185,129,0.3);
+        }
+
+        /* ── Product Recommendations ── */
+
+        #product-recommendations { margin-bottom: 2.5rem; }
+        #product-recommendations.hidden { display: none; }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1.2rem;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .product-card {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 1rem;
+            padding: 1.4rem;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            animation: fadeInUp 0.5s ease both;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(124,58,237,0.15);
+            border-color: rgba(124,58,237,0.3);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .product-card .product-type {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #06b6d4;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+        }
+
+        .product-card .product-name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: #fff;
+            margin-bottom: 0.6rem;
+        }
+
+        .product-card .product-price {
+            color: #f59e0b;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .product-card .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 0.5rem;
+        }
+
+        .product-card .star {
+            color: #f59e0b;
+            font-size: 0.9rem;
+        }
+
+        .product-card .star.empty { color: rgba(255,255,255,0.15); }
+
+        .product-card .rating-num {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.82rem;
+            margin-left: 0.3rem;
+        }
+
+        .budget-badge {
+            display: inline-block;
+            margin-top: 0.6rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            background: rgba(16,185,129,0.15);
+            color: #34d399;
+            border: 1px solid rgba(16,185,129,0.25);
+        }
+
+        /* ── Water Section ── */
+
+        #water-section { margin-bottom: 2.5rem; }
+        #water-section.hidden { display: none; }
+
+        .water-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .water-amount {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .water-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        .water-glasses {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .water-glass {
+            width: 36px;
+            height: 48px;
+            border-radius: 0 0 8px 8px;
+            border: 2px solid rgba(6,182,212,0.35);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .water-glass:hover { transform: scale(1.12); }
+
+        .water-glass.filled::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 100%;
+            background: linear-gradient(to top, #06b6d4, #38bdf8);
+            opacity: 0.55;
+            animation: fillUp 0.6s ease both;
+        }
+
+        @keyframes fillUp {
+            from { height: 0; }
+            to   { height: 100%; }
+        }
+
+        .water-glass.empty::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 100%;
+            background: rgba(255,255,255,0.04);
+        }
+
+        /* ── Diet Section ── */
+
+        #diet-section { margin-bottom: 2.5rem; }
+        #diet-section.hidden { display: none; }
+
+        .diet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .diet-card {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 1rem;
+            padding: 1.2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            transition: transform 0.3s, border-color 0.3s;
+            animation: fadeInUp 0.5s ease both;
+        }
+
+        .diet-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(16,185,129,0.35);
+        }
+
+        .diet-emoji {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .diet-info .diet-food {
+            font-weight: 600;
+            color: #fff;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .diet-info .diet-benefit {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+
+        .diet-info .diet-meal {
+            margin-top: 0.35rem;
+            font-size: 0.75rem;
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        /* ── Loading Overlay ── */
+
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10,10,26,0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            gap: 1.2rem;
+            transition: opacity 0.4s;
+        }
+
+        #loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 52px;
+            height: 52px;
+            border: 4px solid rgba(124,58,237,0.2);
+            border-top-color: #7c3aed;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.95rem;
+        }
+
+        /* ── Scan Line Effect ── */
+
+        .scan-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #10b981, transparent);
+            box-shadow: 0 0 12px #10b981;
+            z-index: 5;
+            animation: scanSweep 2.2s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scanSweep {
+            0%   { top: 0; opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside id="sidebar"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+
+        <!-- Header -->
+        <div class="face-scan-header">
+            <h1>📸 Face Scan &amp; Skin Analysis</h1>
+            <p class="subtitle">Let our AI analyze your skin and recommend the best products</p>
+        </div>
+
+        <!-- Two-Column Layout -->
+        <div class="scan-layout">
+
+            <!-- Left: Webcam Area -->
+            <div class="webcam-section">
+                <div class="webcam-container" id="webcam-container">
+                    <div class="webcam-placeholder" id="webcam-placeholder">
+                        <span class="camera-icon">📷</span>
+                        <span>Camera preview will appear here</span>
+                    </div>
+                    <video id="webcam" autoplay playsinline muted></video>
+                    <canvas id="overlay"></canvas>
+                </div>
+
+                <div class="scan-controls">
+                    <button class="btn-scan btn-scan-primary" id="start-scan">🎥 Start Scan</button>
+                    <button class="btn-scan btn-scan-secondary" id="capture-btn" style="display:none;">📸 Capture &amp; Analyze</button>
+                </div>
+
+                <p id="scan-status"></p>
+            </div>
+
+            <!-- Right: Results Panel -->
+            <div id="results-panel" class="glass-card hidden">
+                <h3>🧬 Skin Analysis Results</h3>
+
+                <div class="result-row">
+                    <span class="result-label">Skin Type</span>
+                    <span class="result-value"><span class="badge badge-purple" id="skin-type-result">—</span></span>
+                </div>
+
+                <div class="result-row">
+                    <span class="result-label">Estimated Age</span>
+                    <span class="result-value" id="age-result">—</span>
+                </div>
+
+                <div class="result-row">
+                    <span class="result-label">Gender</span>
+                    <span class="result-value" id="gender-result">—</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Recommendations -->
+        <section id="product-recommendations" class="hidden">
+            <h2 class="section-title">💄 Recommended Products</h2>
+            <div class="product-grid" id="product-grid"></div>
+        </section>
+
+        <!-- Water Intake -->
+        <section id="water-section" class="hidden">
+            <h2 class="section-title">💧 Daily Water Intake Goal</h2>
+            <div class="glass-card">
+                <div class="water-info">
+                    <span class="water-amount" id="water-amount">—</span>
+                    <span class="water-label">recommended per day</span>
+                </div>
+                <div class="water-glasses" id="water-glasses"></div>
+            </div>
+        </section>
+
+        <!-- Diet Recommendations -->
+        <section id="diet-section" class="hidden">
+            <h2 class="section-title">🥗 Diet for Healthy Skin</h2>
+            <div class="diet-grid" id="diet-grid"></div>
+        </section>
+
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+        <p class="loading-text" id="loading-text">Loading AI models…</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.min.js"></script>
+    <script src="js/face-scan.js"></script>
+</body>
+</html>
