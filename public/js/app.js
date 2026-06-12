@@ -2,7 +2,8 @@
 
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? ''
-  : 'https://spark-backend-service.onrender.com'; // Replace this with your actual Render backend URL
+  : 'https://spark-kden.onrender.com';
+
 
 
 // Auth state helper methods
